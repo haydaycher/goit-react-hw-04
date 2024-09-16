@@ -46,13 +46,13 @@ import SearchBar from "../SearchBar/SearchBar";
 export default function App() {
   return (
     <div>
+      <SearchBar />
       <ErrorMessage />
       <ImageCard />
       <ImageGallery />
       <ImageModal />
       <Loader />
       <LoadMoreBtn />
-      <SearchBar />
     </div>
   );
 }
