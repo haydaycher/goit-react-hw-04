@@ -1,0 +1,47 @@
+.header {
+  background: linear-gradient(
+    135deg,
+    rgba(57, 73, 171, 0.9),
+    rgba(30, 136, 229, 0.9),
+    rgba(13, 71, 161, 0.9)
+  );
+  padding: 20px;
+  text-align: center;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  margin: auto;
+}
+
+.form {
+  display: flex;
+  justify-content: center;
+}
+
+.inputWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.searchInput {
+  width: 300px;
+  padding: 10px 10px 10px 50px;
+  border-radius: 4px;
+  border: none;
+  font-size: 16px;
+  outline: none;
+}
+
+.searchBtn {
+  margin-right: 10px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: #333;
+  font-size: 30px;
+}
+
+.icon {
+  color: #fffbfb;
+}

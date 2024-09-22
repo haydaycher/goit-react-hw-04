@@ -1,68 +1,100 @@
-// import { useState } from "react";
-
-import "./App.module.css";
-// import ReactDOM from "react-dom";
-// import Modal from "react-modal";
-
-import ErrorMessage from "../ErrorMessage/ErrorMessage";
-import ImageCard from "../ImageCard/ImageCard";
-import ImageGallery from "../ImageGallery/ImageGallery";
-import ImageModal from "../ImageModal/ImageModal";
-import Loader from "../Loader/Loader";
-import LoadMoreBtn from "../LoadMoreBtn/LoadMoreBtn";
+import { useState, useEffect } from "react";
+import { fetchArticles } from "../services/api";
 import SearchBar from "../SearchBar/SearchBar";
+import ImageGallery from "../ImageGallery/ImageGallery";
+import Loader from "../Loader/Loader";
+import ErrorMessage from "../ErrorMessage/ErrorMessage";
+import LoadMoreBtn from "../LoadMoreBtn/LoadMoreBtn";
+import ImageModal from "../ImageModal/ImageModal";
+import css from "../App/App.module.css";
+import ReactModal from "react-modal";
+import { Toaster } from "react-hot-toast";
+// import { ErrorMessage } from "formik";
 
-// function App() {
-//   const [count, setCount] = useState(0);
-
-//   return (
-//     <>
-//       <div>
-//         <a href="https://vitejs.dev" target="_blank">
-//           <img src={viteLogo} className="logo" alt="Vite logo" />
-//         </a>
-//         <a href="https://react.dev" target="_blank">
-//           <img src={reactLogo} className="logo react" alt="React logo" />
-//         </a>
-//       </div>
-//       <h1>Vite + React</h1>
-//       <div className="card">
-//         <button onClick={() => setCount((count) => count + 1)}>
-//           count is {count}
-//         </button>
-//         <p>
-//           Edit <code>src/App.jsx</code> and save to test HMR
-//         </p>
-//       </div>
-//       <p className="read-the-docs">
-//         Click on the Vite and React logos to learn more
-//       </p>
-//     </>
-//   );
-// }
-
-// export default App;
+ReactModal.setAppElement("#root");
 
 export default function App() {
+  const [articles, setArticles] = useState([]);
+  const [query, setQuery] = useState("");
+  const [page, setPage] = useState(1);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isError, setIsError] = useState(null);
+  const [showModal, setShowModal] = useState(false);
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [totalPages, setTotalPages] = useState(999);
+
+  useEffect(() => {
+    if (!query) return;
+
+    const getArticles = async () => {
+      try {
+        setIsLoading(true);
+        setIsError(null);
+        const data = await fetchArticles(page, query);
+        console.log(data);
+        if (Array.isArray(data.results)) {
+          setArticles((prev) => [...prev, ...data.results]);
+        } else {
+          console.error("data.results is not an array", data.results);
+        }
+        setTotalPages(data.total_pages);
+      } catch {
+        setIsError(true);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    getArticles();
+  }, [page, query]);
+
+  const handleSetQuery = (topic) => {
+    setQuery(topic);
+    setArticles([]);
+    setPage(1);
+  };
+
+  const handleChangePage = () => {
+    setPage((prev) => prev + 1);
+  };
+
+  const openModal = (image) => {
+    setSelectedImage(image);
+    setShowModal(true);
+  };
+
+  const closeModal = () => {
+    setShowModal(false);
+    setSelectedImage(null);
+  };
+
   return (
-    <div>
-      <SearchBar />
-      <ErrorMessage />
-      <ImageCard />
-      <ImageGallery />
-      <ImageModal />
-      <Loader />
-      <LoadMoreBtn />
+    <div className={css.app}>
+      <SearchBar onSubmit={handleSetQuery} />
+
+      {isError && (
+        <ErrorMessage message="Something went wrong. Please try again." />
+      )}
+
+      <ImageGallery articles={articles} openModal={openModal} />
+
+      {isLoading && <Loader />}
+      {articles.length > 0 && !isLoading && page < totalPages && (
+        <LoadMoreBtn onClick={handleChangePage} />
+      )}
+
+      {query && articles.length === 0 && !isLoading && (
+        <p>No articles found.</p>
+      )}
+
+      {showModal && selectedImage && (
+        <ImageModal
+          isOpen={showModal}
+          onRequestClose={closeModal}
+          image={selectedImage}
+        />
+      )}
+      <Toaster position="top-right" reverseOrder={false} />
     </div>
   );
 }
-
-/* <Profile
-        name={userData.username}
-        tag={userData.tag}
-        location={userData.location}
-        image={userData.avatar}
-        stats={userData.stats}
-      />
-      <FriendList friends={friends} />
-      <TransactionHistory items={transactions} /> */

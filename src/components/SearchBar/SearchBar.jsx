@@ -1,20 +1,44 @@
 import { useState } from "react";
-// import css from "./SearchBar.module.css";
+// import { Field, Form, Formik } from "formik";
+import { IoSearchOutline } from "react-icons/io5";
+import css from "./SearchBar.module.css";
+import toast from "react-hot-toast";
 
-const SearchBar = () => {
-  const [text, setText] = useState("");
+const SearchBar = ({ onSubmit }) => {
+  const [query, setQuery] = useState("");
+
+  const handleChange = (e) => {
+    setQuery(e.target.value);
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
+    if (query.trim() === "") {
+      toast.error("Please enter a search term");
+      return;
+    }
+    onSubmit(query);
+    setQuery("");
   };
+
+  // const handleChangeInput = (e) => {
+  //   setFormData((prev) => {
+  //     return {
+  //       ...prev,
+  //       [e.target.name]: e.target.value,
+  //     };
+  //   });
+  // };
   return (
-    <div>
-      <header>
-        <form onSubmit={handleSubmit}>
-          <label>
+    <div className={css.searchContainer}>
+      <header className={css.header}>
+        <form onSubmit={handleSubmit} className={css.form}>
+          <label className={css.inputWrapper}>
             <input
-              value={text}
-              onChange={(e) => setText(e.target.value)}
+              className={css.searchInput}
+              value={query}
+              name="message"
+              onChange={handleChange}
               type="text"
               autoComplete="off"
               autoFocus
@@ -22,7 +46,9 @@ const SearchBar = () => {
             />
           </label>
 
-          <button type="submit">Search</button>
+          <button className={css.searchBtn} type="submit">
+            <IoSearchOutline className={css.icon} />
+          </button>
         </form>
       </header>
     </div>
